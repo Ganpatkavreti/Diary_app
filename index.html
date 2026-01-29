@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>मेरी डिजिटल डायरी - ज्ञान संग्रह</title>
+    
+    <!-- PWA Required Tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4a6fa5">
+    <link rel="icon" href="icon.png" type="image/png" sizes="192x192">
+    
+    <!-- External Stylesheets -->
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Favicon for browsers -->
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
+</head>
+<body>
+    <!-- Splash Screen for PWA -->
+    <div id="splashScreen" class="splash-screen">
+        <div class="splash-icon">
+            <i class="fas fa-book-open fa-3x"></i>
+        </div>
+        <h1 class="splash-title">डिजिटल डायरी</h1>
+        <p class="splash-subtitle">आपका ज्ञान संग्रह लोड हो रहा है...</p>
+    </div>
+
+    <!-- Network Status -->
+    <div id="networkStatus" class="network-status">
+        <i class="fas fa-wifi-slash"></i>
+        <span>आप ऑफलाइन हैं। परिवर्तन स्थानीय रूप से सहेजे जाएंगे।</span>
+    </div>
+
+    <!-- App Loading -->
+    <div id="appLoading" class="app-loading">
+        <div class="loading-spinner"></div>
+        <p>लोड हो रहा है...</p>
+    </div>
+
+    <!-- Theme Toggle -->
+    <div class="theme-toggle">
+        <button id="themeToggle" class="theme-btn" title="थीम बदलें">
+            <i class="fas fa-moon"></i>
+            <i class="fas fa-sun"></i>
+        </button>
+    </div>
+
+    <!-- PWA Install Button -->
+    <button id="installButton" class="install-btn" style="display: none;">
+        <i class="fas fa-download"></i> ऐप इंस्टॉल करें
+    </button>
+
+    <!-- Sync Status Indicator -->
+    <div class="sync-status hidden" id="syncStatus">
+        <i class="fas fa-sync-alt"></i>
+        <span>GitHub Gist से सिंक हो रहा है...</span>
+    </div>
+
+    <!-- Primary Navbar -->
+    <nav class="primary-nav">
+        <div class="nav-container">
+            <div class="logo">
+                <h2><i class="fas fa-book-open"></i> डिजिटल डायरी</h2>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#home" class="nav-link active" data-page="home">होम</a></li>
+                <li><a href="#gallery" class="nav-link" data-page="gallery">गैलरी</a></li>
+                <li><a href="#about" class="nav-link" data-page="about">हमारे बारे में</a></li>
+                <li><a href="#admin" class="nav-link" data-page="admin">एडमिन</a></li>
+                <li><a href="#logout" class="nav-link logout-btn" id="navLogout" style="display: none;">
+                    <i class="fas fa-sign-out-alt"></i> लॉगआउट
+                </a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sub-Nav Category Bar -->
+    <div class="sub-nav" id="subNav">
+        <div class="sub-nav-container">
+            <button class="category-btn active" data-category="all">सभी</button>
+            <button class="category-btn" data-category="Philosophy">दर्शन</button>
+            <button class="category-btn" data-category="Science">विज्ञान</button>
+            <button class="category-btn" data-category="History">इतिहास</button>
+            <button class="category-btn" data-category="Education">शिक्षा</button>
+            <button class="category-btn" data-category="Health">स्वास्थ्य</button>
+            <button class="category-btn" data-category="Others">अन्य</button>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <!-- Home Page -->
+        <section id="home" class="page active">
+            <div class="container">
+                <div class="articles-grid" id="articlesGrid">
+                    <!-- Loading Skeleton -->
+                    <div class="skeleton-loader">
+                        <div class="skeleton-card">
+                            <div class="skeleton-image"></div>
+                            <div class="skeleton-content">
+                                <div class="skeleton-category"></div>
+                                <div class="skeleton-title"></div>
+                                <div class="skeleton-summary"></div>
+                                <div class="skeleton-date"></div>
+                            </div>
+                        </div>
+                        <div class="skeleton-card">
+                            <div class="skeleton-image"></div>
+                            <div class="skeleton-content">
+                                <div class="skeleton-category"></div>
+                                <div class="skeleton-title"></div>
+                                <div class="skeleton-summary"></div>
+                                <div class="skeleton-date"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pagination" id="pagination"></div>
+            </div>
+        </section>
+
+        <!-- Article View -->
+        <section id="articleView" class="page">
+            <div class="container">
+                <button class="back-btn" id="backBtn">
+                    <i class="fas fa-arrow-left"></i> होम पर वापस जाएं
+                </button>
+                <article id="articleContent"></article>
+            </div>
+        </section>
+
+        <!-- Gallery Page -->
+        <section id="gallery" class="page">
+            <div class="container">
+                <h1 class="page-title"><i class="fas fa-images"></i> इमेज गैलरी</h1>
+                <div class="gallery-grid" id="galleryGrid"></div>
+            </div>
+        </section>
+
+        <!-- About Page -->
+        <section id="about" class="page">
+            <div class="container">
+                <h1 class="page-title"><i class="fas fa-info-circle"></i> हमारे बारे में</h1>
+                <div class="about-content">
+                    <div class="about-card">
+                        <i class="fas fa-database"></i>
+                        <h3>ज्ञान संरक्षण</h3>
+                        <p>एक व्यक्तिगत डिजिटल डायरी और शैक्षणिक ज्ञान संग्रह जो लंबी लेखों को विशिष्ट श्रेणियों में व्यवस्थित करने के लिए डिज़ाइन किया गया है।</p>
+                    </div>
+                    <div class="about-card">
+                        <i class="fas fa-lock"></i>
+                        <h3>प्राइवेसी केंद्रित</h3>
+                        <p>आपका डेटा आपके डिवाइस पर ही रहता है। हम व्यक्तिगत ज्ञान प्रबंधन के लिए प्राइवेसी-फर्स्ट दृष्टिकोण में विश्वास करते हैं।</p>
+                    </div>
+                    <div class="about-card">
+                        <i class="fas fa-palette"></i>
+                        <h3>सुंदर डिज़ाइन</h3>
+                        <p>स्वच्छ, आधुनिक इंटरफेस के साथ सहज नेविगेशन का आनंद लें।</p>
+                    </div>
+                    <div class="about-card">
+                        <i class="fab fa-github"></i>
+                        <h3>GitHub बैकअप</h3>
+                        <p>सुरक्षित क्लाउड बैकअप और क्रॉस-डिवाइस एक्सेस के लिए अपने लेखों को GitHub Gist पर ऑटो-सिंक करें।</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Admin Page -->
+        <section id="admin" class="page">
+            <div class="container">
+                <div class="admin-login" id="adminLogin">
+                    <div class="login-card">
+                        <h2><i class="fas fa-lock"></i> एडमिन लॉगिन</h2>
+                        <p class="login-subtitle">एडमिन पैनल तक पहुंचने के लिए पासवर्ड दर्ज करें</p>
+                        <input type="password" id="adminPassword" placeholder="पासवर्ड दर्ज करें" autocomplete="off">
+                        <button id="loginBtn" class="login-button">
+                            <i class="fas fa-sign-in-alt"></i> लॉगिन
+                        </button>
+                    </div>
+                </div>
+                <div class="admin-panel" id="adminPanel" style="display: none;">
+                    <div class="admin-header">
+                        <h2><i class="fas fa-cogs"></i> एडमिन पैनल</h2>
+                        <button class="logout-btn" id="adminLogout">
+                            <i class="fas fa-sign-out-alt"></i> लॉगआउट
+                        </button>
+                    </div>
+                    <div class="admin-tabs">
+                        <button class="tab-btn active" data-tab="create">
+                            <i class="fas fa-plus-circle"></i> लेख बनाएं
+                        </button>
+                        <button class="tab-btn" data-tab="manage">
+                            <i class="fas fa-tasks"></i> लेख प्रबंधन
+                        </button>
+                        <button class="tab-btn" data-tab="backup">
+                            <i class="fas fa-download"></i> बैकअप/पुनर्स्थापना
+                        </button>
+                        <button class="tab-btn" data-tab="github">
+                            <i class="fab fa-github"></i> GitHub सिंक
+                        </button>
+                    </div>
+                    
+                    <!-- Create/Edit Form -->
+                    <div id="createTab" class="admin-tab active">
+                        <form id="articleForm" class="article-form">
+                            <input type="hidden" id="editId">
+                            <div class="form-group">
+                                <label><i class="fas fa-heading"></i> शीर्षक</label>
+                                <input type="text" id="title" required placeholder="लेख का शीर्षक दर्ज करें" maxlength="200">
+                                <small class="char-count" id="titleCharCount">0/200 अक्षर</small>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-align-left"></i> सारांश</label>
+                                <textarea id="summary" required placeholder="लेख का संक्षिप्त सारांश" maxlength="500"></textarea>
+                                <small class="char-count" id="summaryCharCount">0/500 अक्षर</small>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-tag"></i> श्रेणी</label>
+                                <select id="category" required>
+                                    <option value="">श्रेणी चुनें</option>
+                                    <option value="Philosophy">दर्शन</option>
+                                    <option value="Science">विज्ञान</option>
+                                    <option value="History">इतिहास</option>
+                                    <option value="Education">शिक्षा</option>
+                                    <option value="Health">स्वास्थ्य</option>
+                                    <option value="Others">अन्य</option>
+                                </select>
+                            </div>
+                            <div class="form-group image-group">
+                                <label><i class="fas fa-image"></i> इमेज (वैकल्पिक - अधिकतम 2MB)</label>
+                                <div class="file-input-wrapper">
+                                    <input type="file" id="image" accept="image/*">
+                                    <label for="image" class="file-input-label">
+                                        <i class="fas fa-cloud-upload-alt"></i> इमेज चुनें
+                                    </label>
+                                </div>
+                                <small class="file-size-warning" id="fileSizeWarning" style="display: none;">
+                                    <i class="fas fa-exclamation-triangle"></i> बड़ी इमेज संपीड़ित की जाएंगी
+                                </small>
+                                <div id="imagePreview" class="image-preview"></div>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-edit"></i> सामग्री</label>
+                                <div id="editor"></div>
+                            </div>
+                            <div class="form-buttons">
+                                <button type="submit" id="submitBtn" class="submit-btn">
+                                    <i class="fas fa-paper-plane"></i> लेख सबमिट करें
+                                </button>
+                                <button type="button" id="cancelEdit" class="cancel-btn" style="display: none;">
+                                    <i class="fas fa-times"></i> संपादन रद्द करें
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Manage Articles -->
+                    <div id="manageTab" class="admin-tab">
+                        <div class="articles-list-header">
+                            <h3><i class="fas fa-newspaper"></i> सभी लेख</h3>
+                            <span class="articles-count">कुल: <span id="articlesCount">0</span> लेख</span>
+                            <div class="articles-header-buttons">
+                                <button class="export-btn" onclick="exportToJSON()" title="सभी लेख JSON के रूप में एक्सपोर्ट करें">
+                                    <i class="fas fa-download"></i> JSON एक्सपोर्ट करें
+                                </button>
+                                <button class="clear-storage-btn" onclick="clearAllData()" title="सभी डेटा साफ करें">
+                                    <i class="fas fa-trash"></i> सभी साफ करें
+                                </button>
+                            </div>
+                        </div>
+                        <div class="storage-info">
+                            <i class="fas fa-database"></i>
+                            <span>स्टोरेज: <span id="storageUsed">0 KB</span> / 5 MB</span>
+                            <div class="storage-bar">
+                                <div class="storage-fill" id="storageFill"></div>
+                            </div>
+                        </div>
+                        <div class="articles-list" id="articlesList"></div>
+                    </div>
+
+                    <!-- Backup/Restore -->
+                    <div id="backupTab" class="admin-tab">
+                        <div class="backup-section">
+                            <h3><i class="fas fa-download"></i> डेटा एक्सपोर्ट करें</h3>
+                            <p>बैकअप के लिए अपने सभी लेखों को JSON फाइल के रूप में एक्सपोर्ट करें।</p>
+                            <button class="backup-btn" onclick="exportData()">
+                                <i class="fas fa-file-export"></i> डेटा एक्सपोर्ट करें
+                            </button>
+                        </div>
+                        
+                        <div class="backup-section">
+                            <h3><i class="fas fa-upload"></i> डेटा इम्पोर्ट करें</h3>
+                            <p>पहले से एक्सपोर्ट की गई JSON फाइल से लेख इम्पोर्ट करें।</p>
+                            <div class="file-input-wrapper">
+                                <input type="file" id="importFile" accept=".json">
+                                <label for="importFile" class="file-input-label">
+                                    <i class="fas fa-file-import"></i> JSON फाइल चुनें
+                                </label>
+                            </div>
+                            <button class="backup-btn" onclick="importData()">
+                                <i class="fas fa-file-import"></i> डेटा इम्पोर्ट करें
+                            </button>
+                        </div>
+                    </div>
+          <!-- GitHub Sync Tab -->
+                    <div id="githubTab" class="admin-tab">
+                        <div class="github-config-section">
+                            <h3><i class="fab fa-github"></i> GitHub Gist ऑटो-सिंक</h3>
+                            <p class="config-description">सुरक्षित क्लाउड बैकअप और क्रॉस-डिवाइस एक्सेस के लिए अपने लेखों को एक निजी GitHub Gist पर ऑटो-सिंक करें।</p>
+                            
+                            <div class="github-config-form">
+                                <div class="form-group">
+                                    <label><i class="fas fa-key"></i> GitHub व्यक्तिगत एक्सेस टोकन</label>
+                                    <input type="password" id="githubToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" 
+                                           autocomplete="off" spellcheck="false">
+                                    <small class="help-text">
+                                        टोकन यहां बनाएं: <a href="https://github.com/settings/tokens" target="_blank">GitHub टोकन</a> 
+                                        "gist" अनुमति के साथ
+                                    </small>
+                                </div>
+                                <div class="form-group">
+                                    <label><i class="fas fa-file-code"></i> Gist ID (वैकल्पिक)</label>
+                                    <input type="text" id="gistId" placeholder="खाली छोड़ें ताकि आपके Gist खोजे जा सकें" 
+                                           autocomplete="off" spellcheck="false">
+                                    <small class="help-text">
+                                        मौजूदा Gist ID या खोजने के लिए खाली छोड़ें
+                                    </small>
+                                </div>
+                                <div class="form-group">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" id="autoSync" checked>
+                                        <span><i class="fas fa-sync-alt"></i> लेख सेव करने पर ऑटो-सिंक</span>
+                                    </label>
+                                </div>
+                                
+                                <div class="github-buttons">
+                                    <button class="github-btn" onclick="saveGitHubConfig()">
+                                        <i class="fas fa-save"></i> कॉन्फ़िगरेशन सेव करें
+                                    </button>
+                                    <button class="github-btn secondary" onclick="testGitHubConnection()">
+                                        <i class="fas fa-plug"></i> टेस्ट करें & Gist खोजें
+                                    </button>
+                                    <button class="github-btn secondary" onclick="searchForDiaryGists()" title="मौजूदा डायरी Gist खोजें">
+                                        <i class="fas fa-search"></i> Gist खोजें
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="sync-status-info">
+                                <h4>सिंक स्थिति</h4>
+                                <div class="status-details">
+                                    <p><strong>स्थिति:</strong> <span id="syncStatusText">कॉन्फ़िगर नहीं</span></p>
+                                    <p><strong>अंतिम सिंक:</strong> <span id="lastSyncTime">कभी नहीं</span></p>
+                                    <p><strong>Gist में लेख:</strong> <span id="gistArticleCount">0</span></p>
+                                    <p><strong>Gist ID:</strong> <span id="currentGistId">सेट नहीं</span></p>
+                                </div>
+                                <div class="sync-controls">
+                                    <button class="sync-btn" onclick="syncToGist()">
+                                        <i class="fas fa-cloud-upload-alt"></i> अभी सिंक करें
+                                    </button>
+                                    <button class="sync-btn secondary" onclick="pullFromGist()">
+                                        <i class="fas fa-cloud-download-alt"></i> Gist से डाउनलोड करें
+                                    </button>
+                                    <button class="sync-btn secondary" onclick="loadFromGistOnStartup()" title="Gist से लेख लोड करें">
+                                        <i class="fas fa-download"></i> लेख लोड करें
+                                    </button>
+                                    <button class="sync-btn warning" onclick="clearGitHubConfig()">
+                                        <i class="fas fa-trash"></i> कॉन्फ़िग साफ करें
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Professional Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3><i class="fas fa-user-circle"></i> व्यक्तिगत जानकारी</h3>
+                <div class="personal-footer-details">
+                    <p><i class="fas fa-user"></i> <strong>नाम:</strong> गणपत</p>
+                    <p><i class="fas fa-phone"></i> <strong>फोन:</strong> 8763027659</p>
+                    <p><i class="fas fa-map-marker-alt"></i> <strong>स्थान:</strong> छिंदवाड़ा, मध्य प्रदेश</p>
+                </div>
+            </div>
+
+            <div class="footer-section">
+                <h4>त्वरित लिंक</h4>
+                <ul>
+                    <li><a href="#home"><i class="fas fa-home"></i> होम</a></li>
+                    <li><a href="#gallery"><i class="fas fa-images"></i> गैलरी</a></li>
+                    <li><a href="#about"><i class="fas fa-info-circle"></i> हमारे बारे में</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>स्टोरेज स्थिति</h4>
+                <p><i class="fas fa-database"></i> स्थानीय: <span id="localStorageInfo">0 KB</span></p>
+                <p><i class="fab fa-github"></i> Gist: <span id="gistStorageInfo">कॉन्फ़िगर नहीं</span></p>
+                <p><i class="fas fa-download"></i> ऐप इंस्टॉल करें</p>
+                <button id="installButtonFooter" class="install-btn" style="display: none;">
+                    <i class="fas fa-download"></i> ऐप इंस्टॉल करें
+                </button>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; <span id="currentYear">2024</span> डिजिटल डायरी। सर्वाधिकार सुरक्षित। | ज्ञान संरक्षण के लिए <i class="fas fa-heart"></i> के साथ बनाया गया।</p>
+        </div>
+    </footer>
+    <!-- External Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.min.js"></script>
+    
+    <!-- Main Application Script -->
+    <script>
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registered:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('ServiceWorker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>
