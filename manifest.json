@@ -2,22 +2,25 @@
   "name": "डिजिटल डायरी",
   "short_name": "डायरी",
   "description": "व्यक्तिगत डिजिटल डायरी और ज्ञान संग्रह",
-  "start_url": "index.html",
+  "start_url": "Diary_app/index.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#4a6fa5",
   "icons": [
     {
-      "src": "icon-192x192.png",
+      "src": "Diary_app/icon-192x192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "icon-512x512.png",
+      "src": "Diary_app/icon-512x512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ],
-  "scope": "/",
-  "lang": "hi"
+  "scope": "/Diary_app/",
+  "lang": "hi",
+  "orientation": "portrait-primary"
 }
